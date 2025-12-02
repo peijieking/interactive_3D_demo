@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D粒子系统 - 手势交互</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1646424915/camera_utils.min.js"></script>
+</head>
+<body>
+    <div id="container">
+        <canvas id="canvas"></canvas>
+        <video id="video" style="display: none;"></video>
+        
+        <div id="ui-panel">
+            <div class="ui-section">
+                <h3>模型选择</h3>
+                <select id="model-selector">
+                    <option value="tree">圣诞树</option>
+                    <option value="star">星星</option>
+                    <option value="fireworks">烟花</option>
+                    <option value="heart">爱心</option>
+                    <option value="earth">地球</option>
+                </select>
+            </div>
+            
+            <div class="ui-section">
+                <h3>粒子颜色</h3>
+                <input type="color" id="color-picker" value="#4CAF50">
+            </div>
+            
+            <div class="ui-section">
+                <h3>控制</h3>
+                <button id="fullscreen-btn">全屏模式</button>
+                <button id="toggle-camera-btn">切换摄像头</button>
+            </div>
+        </div>
+        
+        <div id="status-indicator">
+            <div id="status-text">准备就绪</div>
+            <div id="gesture-info">手势控制: 双手张合控制缩放</div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
