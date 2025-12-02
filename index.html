@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D 交互式粒子系统</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="container"></div>
+    
+    <!-- UI控制面板 -->
+    <div class="control-panel">
+        <div class="panel-header">
+            <h3>粒子控制系统</h3>
+        </div>
+        
+        <div class="control-group">
+            <label for="modelSelect">粒子模型:</label>
+            <select id="modelSelect">
+                <option value="christmas">圣诞树</option>
+                <option value="star">星星</option>
+                <option value="fireworks">烟花</option>
+                <option value="heart">爱心</option>
+                <option value="earth">地球</option>
+                <option value="sphere">球体</option>
+            </select>
+        </div>
+        
+        <div class="control-group">
+            <label for="colorPicker">粒子颜色:</label>
+            <input type="color" id="colorPicker" value="#ff6b6b">
+        </div>
+        
+        <div class="control-group">
+            <label for="particleCount">粒子数量:</label>
+            <input type="range" id="particleCount" min="100" max="5000" value="2000" step="100">
+            <span id="countValue">2000</span>
+        </div>
+        
+        <div class="control-group">
+            <label for="manualControl">手动缩放:</label>
+            <input type="range" id="manualControl" min="50" max="500" value="200" step="10">
+            <span id="manualValue">200</span>
+        </div>
+        
+        <div class="control-group">
+            <button id="resetBtn" class="btn">重置粒子</button>
+        </div>
+    </div>
+    
+    <!-- 全屏按钮 -->
+    <button id="fullscreenBtn" class="fullscreen-btn">
+        ➕
+    </button>
+    
+    <!-- 摄像头权限提示 -->
+    <div id="permissionModal" class="modal">
+        <div class="modal-content">
+            <h3>需要摄像头权限</h3>
+            <p>请允许浏览器访问摄像头以使用手势控制功能</p>
+            <button id="allowBtn" class="btn">允许访问</button>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>
