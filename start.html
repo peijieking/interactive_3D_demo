@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D粒子系统 - 启动页</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 600px;
+        }
+        
+        .logo {
+            font-size: 48px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .description {
+            font-size: 18px;
+            color: #a8b2d1;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .feature {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .feature h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        
+        .feature p {
+            font-size: 14px;
+            color: #a8b2d1;
+            line-height: 1.5;
+        }
+        
+        .start-btn {
+            background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        
+        .start-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        
+        .start-btn:active {
+            transform: translateY(0);
+        }
+        
+        .requirements {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            font-size: 14px;
+            color: #a8b2d1;
+        }
+        
+        .requirements h4 {
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        
+        .requirements ul {
+            list-style: none;
+            text-align: left;
+        }
+        
+        .requirements li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .requirements li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #4CAF50;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .logo {
+                font-size: 36px;
+            }
+            
+            .description {
+                font-size: 16px;
+            }
+            
+            .features {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">3D粒子系统</div>
+        <div class="description">
+            基于Three.js和MediaPipe的实时交互3D粒子系统<br>
+            通过摄像头手势控制粒子群的缩放和扩散
+        </div>
+        
+        <div class="features">
+            <div class="feature">
+                <h3>🎮 手势控制</h3>
+                <p>通过摄像头检测双手张合，实时控制粒子群的缩放和扩散</p>
+            </div>
+            
+            <div class="feature">
+                <h3>🎨 多种模型</h3>
+                <p>支持圣诞树、星星、烟花、爱心、地球等多种粒子模型</p>
+            </div>
+            
+            <div class="feature">
+                <h3>🎨 颜色定制</h3>
+                <p>自由调整粒子颜色，实时预览效果</p>
+            </div>
+            
+            <div class="feature">
+                <h3>🖥️ 现代界面</h3>
+                <p>简洁现代的UI设计，支持全屏模式和响应式布局</p>
+            </div>
+        </div>
+        
+        <button class="start-btn" onclick="startApp()">开始体验</button>
+        
+        <div class="requirements">
+            <h4>系统要求</h4>
+            <ul>
+                <li>现代浏览器（Chrome 60+、Firefox 55+、Safari 11+、Edge 79+）</li>
+                <li>支持摄像头的设备</li>
+                <li>良好的网络连接（加载CDN资源）</li>
+                <li>允许摄像头访问权限</li>
+            </ul>
+        </div>
+    </div>
+    
+    <script>
+        function startApp() {
+            // 跳转到主应用页面
+            window.location.href = 'index.html';
+        }
+        
+        // 检查浏览器兼容性
+        function checkBrowserCompatibility() {
+            const features = {
+                webgl: !!window.WebGLRenderingContext,
+                mediaDevices: !!navigator.mediaDevices,
+                getUserMedia: !!navigator.mediaDevices?.getUserMedia,
+                canvas: !!document.createElement('canvas').getContext
+            };
+            
+            console.log('浏览器兼容性检查:', features);
+            
+            if (!features.webgl) {
+                alert('您的浏览器不支持WebGL，请使用现代浏览器。');
+                return false;
+            }
+            
+            if (!features.mediaDevices || !features.getUserMedia) {
+                alert('您的浏览器不支持媒体设备访问，请使用现代浏览器。');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // 页面加载完成后检查兼容性
+        window.addEventListener('load', () => {
+            checkBrowserCompatibility();
+        });
+    </script>
+</body>
+</html>

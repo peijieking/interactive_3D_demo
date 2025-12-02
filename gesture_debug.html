@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手势识别调试页面</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #fff;
+            margin: 0;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            color: #4CAF50;
+            margin-bottom: 10px;
+        }
+        
+        .status-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .status-item {
+            margin-bottom: 15px;
+        }
+        
+        .status-label {
+            font-weight: bold;
+            color: #4CAF50;
+            margin-bottom: 5px;
+        }
+        
+        .status-value {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .camera-preview {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        #video-preview {
+            width: 100%;
+            max-width: 640px;
+            height: auto;
+            border-radius: 5px;
+            background: #000;
+        }
+        
+        .gesture-data {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .log-panel {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        #debug-log {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+        }
+        
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+        
+        .log-info { color: #4CAF50; }
+        .log-error { color: #ff6b6b; }
+        .log-debug { color: #6b9bff; }
+        
+        .controls {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        button {
+            background: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button:hover {
+            background: #45a049;
+        }
+        
+        button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>手势识别调试工具</h1>
+            <p>用于诊断3D粒子系统手势控制问题</p>
+        </div>
+        
+        <div class="status-panel">
+            <div class="status-item">
+                <div class="status-label">手势识别状态:</div>
+                <div class="status-value" id="gesture-status">未初始化</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">摄像头状态:</div>
+                <div class="status-value" id="camera-status">未启动</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">检测到的手:</div>
+                <div class="status-value" id="hand-count">0</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">当前缩放比例:</div>
+                <div class="status-value" id="scale-value">1.00x</div>
+            </div>
+        </div>
+        
+        <div class="camera-preview">
+            <h3>摄像头预览</h3>
+            <video id="video-preview" autoplay playsinline></video>
+        </div>
+        
+        <div class="gesture-data">
+            <h3>手势数据</h3>
+            <div class="status-item">
+                <div class="status-label">手1指尖距离:</div>
+                <div class="status-value" id="hand1-distance">-</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">手2指尖距离:</div>
+                <div class="status-value" id="hand2-distance">-</div>
+            </div>
+            <div class="status-item">
+                <div class="status-label">平均距离:</div>
+                <div class="status-value" id="avg-distance">-</div>
+            </div>
+        </div>
+        
+        <div class="log-panel">
+            <h3>调试日志</h3>
+            <div id="debug-log"></div>
+        </div>
+        
+        <div class="controls">
+            <button id="start-gesture-btn">启动手势识别</button>
+            <button id="stop-gesture-btn" disabled>停止手势识别</button>
+            <button id="reset-btn">重置</button>
+            <button id="clear-log-btn">清除日志</button>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/hands.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1646424915/camera_utils.min.js"></script>
+    
+    <script>
+        let hands = null;
+        let cameraStream = null;
+        let gestureData = { hand1: null, hand2: null };
+        
+        // 日志记录函数
+        function addLog(message, type = 'info') {
+            const logDiv = document.getElementById('debug-log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            entry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+        
+        // 更新状态显示
+        function updateStatus() {
+            document.getElementById('gesture-status').textContent = 
+                hands ? '已初始化' : '未初始化';
+            
+            document.getElementById('camera-status').textContent = 
+                cameraStream ? '已启动' : '未启动';
+            
+            const handCount = (gestureData.hand1 ? 1 : 0) + (gestureData.hand2 ? 1 : 0);
+            document.getElementById('hand-count').textContent = handCount;
+            
+            // 计算缩放比例
+            let scaleFactor = 1;
+            if (gestureData.hand1 && gestureData.hand2) {
+                const avgDistance = (gestureData.hand1.distance + gestureData.hand2.distance) / 2;
+                scaleFactor = Math.max(0.5, Math.min(2, avgDistance * 10));
+            } else if (gestureData.hand1) {
+                scaleFactor = Math.max(0.5, Math.min(2, gestureData.hand1.distance * 10));
+            } else if (gestureData.hand2) {
+                scaleFactor = Math.max(0.5, Math.min(2, gestureData.hand2.distance * 10));
+            }
+            
+            document.getElementById('scale-value').textContent = `${scaleFactor.toFixed(2)}x`;
+            
+            // 更新手势数据
+            document.getElementById('hand1-distance').textContent = 
+                gestureData.hand1 ? gestureData.hand1.distance.toFixed(4) : '-';
+            
+            document.getElementById('hand2-distance').textContent = 
+                gestureData.hand2 ? gestureData.hand2.distance.toFixed(4) : '-';
+            
+            if (gestureData.hand1 && gestureData.hand2) {
+                const avgDistance = (gestureData.hand1.distance + gestureData.hand2.distance) / 2;
+                document.getElementById('avg-distance').textContent = avgDistance.toFixed(4);
+            } else {
+                document.getElementById('avg-distance').textContent = '-';
+            }
+        }
+        
+        // 手势识别结果处理
+        function onGestureResults(results) {
+            addLog(`手势识别结果: ${JSON.stringify(results.multiHandLandmarks ? { count: results.multiHandLandmarks.length } : '无')}`, 'debug');
+            
+            if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+                gestureData = { hand1: null, hand2: null };
+                updateStatus();
+                return;
+            }
+            
+            // 处理每只手
+            for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                const handLandmarks = results.multiHandLandmarks[i];
+                
+                addLog(`第 ${i+1} 只手的关键点数量: ${handLandmarks ? handLandmarks.length : 'undefined'}`, 'debug');
+                
+                // 检查关键点是否存在
+                if (!handLandmarks || handLandmarks.length < 9) {
+                    addLog('手部关键点不足', 'error');
+                    continue;
+                }
+                
+                // 获取指尖位置
+                const thumbTip = handLandmarks[4];
+                const indexTip = handLandmarks[8];
+                
+                addLog(`第 ${i+1} 只手的指尖位置: 拇指(${thumbTip ? '存在' : '不存在'}), 食指(${indexTip ? '存在' : '不存在'})`, 'debug');
+                
+                // 检查指尖位置是否有效
+                if (!thumbTip || !indexTip || !thumbTip.x || !indexTip.x) {
+                    addLog('指尖位置无效', 'error');
+                    continue;
+                }
+                
+                // 计算指尖距离
+                const distance = Math.sqrt(
+                    Math.pow(thumbTip.x - indexTip.x, 2) +
+                    Math.pow(thumbTip.y - indexTip.y, 2) +
+                    Math.pow(thumbTip.z - indexTip.z, 2)
+                );
+                
+                addLog(`第 ${i+1} 只手的指尖距离: ${distance}`, 'debug');
+                
+                // 存储手势数据
+                if (i === 0) {
+                    gestureData.hand1 = { distance, landmarks: handLandmarks };
+                } else {
+                    gestureData.hand2 = { distance, landmarks: handLandmarks };
+                }
+            }
+            
+            addLog(`手势数据: ${JSON.stringify(gestureData)}`, 'debug');
+            updateStatus();
+        }
+        
+        // 启动手势识别
+        function startGestureRecognition() {
+            addLog('开始初始化手势识别...', 'info');
+            
+            // 检查Hands库是否加载
+            if (typeof Hands === 'undefined') {
+                addLog('Hands库未加载', 'error');
+                return;
+            }
+            
+            addLog('Hands库已加载，开始创建Hands实例...', 'info');
+            
+            try {
+                hands = new Hands({
+                    locateFile: (file) => {
+                        addLog(`加载MediaPipe文件: ${file}`, 'debug');
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1646424915/${file}`;
+                    }
+                });
+                
+                addLog('Hands实例创建成功，设置选项...', 'info');
+                
+                hands.setOptions({
+                    maxNumHands: 2,
+                    modelComplexity: 1,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+                
+                addLog('Hands选项设置成功，设置结果回调...', 'info');
+                
+                hands.onResults(onGestureResults);
+                
+                addLog('手势识别初始化完成，启动摄像头...', 'info');
+                
+                // 启动摄像头
+                startCamera();
+                
+                document.getElementById('start-gesture-btn').disabled = true;
+                document.getElementById('stop-gesture-btn').disabled = false;
+            } catch (error) {
+                addLog(`手势识别初始化失败: ${error}`, 'error');
+            }
+        }
+        
+        // 启动摄像头
+        function startCamera() {
+            addLog('开始启动摄像头...', 'info');
+            
+            const videoElement = document.getElementById('video-preview');
+            
+            if (!videoElement) {
+                addLog('视频元素未找到', 'error');
+                return;
+            }
+            
+            addLog('视频元素找到，请求摄像头权限...', 'info');
+            
+            navigator.mediaDevices.getUserMedia({
+                video: { width: 640, height: 480 },
+                audio: false
+            }).then((stream) => {
+                addLog('摄像头权限已获取，设置视频源...', 'info');
+                videoElement.srcObject = stream;
+                cameraStream = stream;
+                
+                addLog('视频源设置成功，启动MediaPipe摄像头...', 'info');
+                
+                // 启动MediaPipe
+                const camera = new Camera(videoElement, {
+                    onFrame: async () => {
+                        addLog('处理视频帧...', 'debug');
+                        await hands.send({ image: videoElement });
+                    },
+                    width: 640,
+                    height: 480
+                });
+                camera.start();
+                
+                addLog('MediaPipe摄像头启动成功', 'info');
+            }).catch((error) => {
+                addLog(`摄像头访问失败: ${error}`, 'error');
+            });
+        }
+        
+        // 停止手势识别
+        function stopGestureRecognition() {
+            addLog('停止手势识别...', 'info');
+            
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(track => track.stop());
+                cameraStream = null;
+            }
+            
+            hands = null;
+            gestureData = { hand1: null, hand2: null };
+            
+            document.getElementById('start-gesture-btn').disabled = false;
+            document.getElementById('stop-gesture-btn').disabled = true;
+            
+            updateStatus();
+            addLog('手势识别已停止', 'info');
+        }
+        
+        // 重置
+        function reset() {
+            stopGestureRecognition();
+            addLog('已重置', 'info');
+        }
+        
+        // 清除日志
+        function clearLog() {
+            document.getElementById('debug-log').innerHTML = '';
+            addLog('日志已清除', 'info');
+        }
+        
+        // 事件监听
+        document.getElementById('start-gesture-btn').addEventListener('click', startGestureRecognition);
+        document.getElementById('stop-gesture-btn').addEventListener('click', stopGestureRecognition);
+        document.getElementById('reset-btn').addEventListener('click', reset);
+        document.getElementById('clear-log-btn').addEventListener('click', clearLog);
+        
+        // 页面加载完成后初始化
+        window.addEventListener('load', () => {
+            addLog('调试页面已加载', 'info');
+            updateStatus();
+        });
+    </script>
+</body>
+</html>
